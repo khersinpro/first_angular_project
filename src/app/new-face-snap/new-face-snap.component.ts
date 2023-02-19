@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { FaceSnap } from '../models/face-snap.model';
 import { FaceSnapsService } from '../service/face-snaps.service';
 
@@ -31,7 +31,7 @@ export class NewFaceSnapComponent implements OnInit {
     this.snapForm = this.formBuilder.group({
       title: [null, Validators.required],
       description: [null, Validators.required],
-      image_url: [null, [
+      imageUrl: [null, [
         Validators.required,
         Validators.pattern(this.urlRegex)
       ]],
@@ -45,7 +45,7 @@ export class NewFaceSnapComponent implements OnInit {
     this.faceSnapPreview$ = this.snapForm.valueChanges.pipe(
       map(formValue => ({
         ...formValue,
-        created_at: new Date(),
+        createdDate: new Date(),
         snaps: 0,
         id: 0
       }))
@@ -55,7 +55,8 @@ export class NewFaceSnapComponent implements OnInit {
   // Fonction qui se déclenche a la soumission du formulaire
   // Elle appel la forcion addFaceSnap du service facesnap afin de créer un snap avec les informations du formulaire
   onSubmitForm(): void {
-    this.faceSnapService.addFaceSnap(this.snapForm.value);
-    this.router.navigateByUrl('facesnaps');
+    this.faceSnapService.addFaceSnap(this.snapForm.value).pipe(
+      tap(() => this.router.navigateByUrl('facesnaps'))
+    ).subscribe();
   }
 }

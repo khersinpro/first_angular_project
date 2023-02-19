@@ -11,8 +11,8 @@
       <textarea type="text" id="description" formControlName="description" rows="4"></textarea>
     </div>
     <div class="form-group">
-      <label for="image_url">Image</label>
-      <input type="text" id="image_url" formControlName="image_url">
+      <label for="imageUrl">Image</label>
+      <input type="text" id="imageUrl" formControlName="imageUrl">
     </div>
     <div class="form-group">
       <label for="location">localisation</label>
@@ -34,8 +34,8 @@
 -->
 <div class="face-snap-card" *ngIf="faceSnapPreview$ | async as faceSnap" >
   <h2>{{ faceSnap.title | uppercase }}</h2>
-  <p>Mis en ligne {{ faceSnap.created_at | date: 'à HH:mm, le d MMMM yyyy' }}</p>
-  <img [src]="faceSnap.image_url" [alt]="faceSnap.title">
+  <p>Mis en ligne {{ faceSnap.createdDate | date: 'à HH:mm, le d MMMM yyyy' }}</p>
+  <img [src]="faceSnap.imageUrl" [alt]="faceSnap.title">
   <p>{{ faceSnap.description }}</p>
   <p *ngIf="faceSnap.location">Photo prise à {{ faceSnap.location }}</p>
 </div>

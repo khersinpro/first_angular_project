@@ -1,4 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map, Observable, switchMap } from 'rxjs';
 import { FaceSnap } from '../models/face-snap.model';
 
 // Instancie le service a la racine d'angular pour que toute l'application partage la même logique
@@ -8,77 +10,41 @@ import { FaceSnap } from '../models/face-snap.model';
 
 export class FaceSnapsService {
 
-  faceSnaps: FaceSnap[] = [
-    {
-      id: 1,
-      title : 'Mon super titre I',
-      description: 'Ma super description',
-      created_at: new Date(),
-      snaps: 1,
-      image_url: "https://i-mom.unimedias.fr/2020/09/16/je-decouvre-les-pirates.jpg?auto=format%2Ccompress&cs=tinysrgb&h=630&w=1200",
-      location: "Paris"
-    },
-    {
-      id: 2,
-      title : 'Mon super titre II',
-      description: 'Ma super description',
-      created_at: new Date(),
-      snaps: 1,
-      image_url: "https://i-mom.unimedias.fr/2020/09/16/je-decouvre-les-pirates.jpg?auto=format%2Ccompress&cs=tinysrgb&h=630&w=1200",
-      location: "Paris"
-    },
-    {
-      id: 3,
-      title : 'Mon super titre III',
-      description: 'Ma super description',
-      created_at: new Date(),
-      snaps: 1,
-      image_url: "https://i-mom.unimedias.fr/2020/09/16/je-decouvre-les-pirates.jpg?auto=format%2Ccompress&cs=tinysrgb&h=630&w=1200",
-      location: "Paris"
-    },
-    {
-      id: 4,
-      title : 'Mon super titre IIII',
-      description: 'Ma super description',
-      created_at: new Date(),
-      snaps: 1,
-      image_url: "https://i-mom.unimedias.fr/2020/09/16/je-decouvre-les-pirates.jpg?auto=format%2Ccompress&cs=tinysrgb&h=630&w=1200",
-      location: "Paris"
-    },
-  ];
+  faceSnaps!: FaceSnap[];
 
-  constructor() {
+  constructor(private http: HttpClient) { }
 
-  }
-
-  getAllFaceSnaps(): FaceSnap[]
+  getAllFaceSnaps(): Observable<FaceSnap[]>
   {
-    return this.faceSnaps;
+    return this.http.get<FaceSnap[]>('http://localhost:3000/facesnaps');
   }
 
-  getSnapById(faceSnapId: number)
+  getSnapById(faceSnapId: number): Observable<FaceSnap> {
+    return this.http.get<FaceSnap>(`http://localhost:3000/facesnaps/${faceSnapId}`);
+  }
+
+  snapFaceSnapById(faceSnapId: number, snap: 'snap'|'unsnap'):Observable<FaceSnap>
   {
-    const faceSnap = this.faceSnaps.find(faceSnap => faceSnap.id === faceSnapId);
-
-    if (!faceSnap) {
-      throw new Error('FaceSnap not found!');
-    }
-    return faceSnap;
+    return this.getSnapById(faceSnapId).pipe(
+      map(faceSnap => ({
+        ...faceSnap,
+        snaps: faceSnap.snaps + (snap === "snap" ? 1 : -1)
+      })),
+      switchMap(updatedSnap => this.http.put<FaceSnap>(`http://localhost:3000/facesnaps/${faceSnapId}`, updatedSnap))
+    );
   }
 
-  snapFaceSnapById(faceSnapId: number, snap: 'snap'|'unsnap'):void
-  {
-    const selectedFaceSnap = this.getSnapById(faceSnapId);
-    snap === 'snap' ? selectedFaceSnap.snaps++ :selectedFaceSnap.snaps--;
-  }
-
-  addFaceSnap(formValue: { title: string, description: string, image_url: string, location?: string }): void {
-    const faceSnap: FaceSnap = {
-      ...formValue,
-      created_at: new Date(),
-      snaps: 0,
-      id: this.faceSnaps[this.faceSnaps.length - 1].id + 1
-    }
-    this.faceSnaps.push(faceSnap);
+  addFaceSnap(formValue: { title: string, description: string, imageUrl: string, location?: string }): Observable<FaceSnap> {
+    return this.getAllFaceSnaps().pipe(
+      map(facesnaps => [...facesnaps].sort((a: FaceSnap, b: FaceSnap) => a.id - b.id)),
+      map(sortedFacesnaps => sortedFacesnaps[sortedFacesnaps.length - 1].id + 1),
+      map(validId => ({
+        ...formValue,
+        createdDate: new Date(),
+        snaps:0,
+        id: validId
+      })),
+      switchMap(newFaceSnap => this.http.post<FaceSnap>(`http://localhost:3000/facesnaps`, newFaceSnap))
+    )
   }
 }
