@@ -1,0 +1,42 @@
+<div class="form-card">
+  <h2>Nouveau facesnap</h2>
+  <!-- Déclaration du formulaire réactive => [formGroup]="snapForm" -->
+  <form [formGroup]="snapForm">
+    <div class="form-group">
+      <label for="title">Titre</label>
+      <input type="text" id="title" formControlName="title">
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea type="text" id="description" formControlName="description" rows="4"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="image_url">Image</label>
+      <input type="text" id="image_url" formControlName="image_url">
+    </div>
+    <div class="form-group">
+      <label for="location">localisation</label>
+      <input type="text" id="location" formControlName="location">
+    </div>
+    <div class="action-buttons">
+      <!--
+        Déclenche la fonction onSubmitForm a la soumission du form,
+        [disabled]="snapForm.invalid" pour désactivé le button si le form est invalid
+      -->
+      <button type="submit" (click)="onSubmitForm()"  [disabled]="snapForm.invalid" >Enregistrer</button>
+    </div>
+  </form>
+</div>
+
+<!--
+  Preview de l'observable faceSnapPreview$
+  On lécoute avec async as faceSnap pour récupérer l'objet dans faceSnap et l'affiché en dessous
+-->
+<div class="face-snap-card" *ngIf="faceSnapPreview$ | async as faceSnap" >
+  <h2>{{ faceSnap.title | uppercase }}</h2>
+  <p>Mis en ligne {{ faceSnap.created_at | date: 'à HH:mm, le d MMMM yyyy' }}</p>
+  <img [src]="faceSnap.image_url" [alt]="faceSnap.title">
+  <p>{{ faceSnap.description }}</p>
+  <p *ngIf="faceSnap.location">Photo prise à {{ faceSnap.location }}</p>
+</div>
+
