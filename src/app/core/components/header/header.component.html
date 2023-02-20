@@ -3,7 +3,7 @@
   <nav>
     <!-- routerLinkActive permet de passer la class a ajouter quand la lien est actif -->
     <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
-    <a routerLink="facesnaps" routerLinkActive="active">FaceSnaps</a>
-    <a routerLink="create" routerLinkActive="active">create facesnap</a>
+    <a routerLink="facesnaps" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">FaceSnaps</a>
+    <a routerLink="facesnaps/create" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">create facesnap</a>
   </nav>
 </header>
